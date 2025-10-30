@@ -258,9 +258,9 @@ def get_final_output(wildcards):
 def get_gather_calls_input(ext="bcf"):
     def inner(wildcards):
         if wildcards.by == "odds":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_odds.{ext}"
+            pattern = "results/filtered-calls/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_odds.{ext}"
         elif wildcards.by == "ann":
-            pattern = "results/calls/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_ann.{ext}"
+            pattern = "results/filtered-calls/{{{{group}}}}/{{{{group}}}}.{{{{event}}}}.{{{{calling_type}}}}.{{scatteritem}}.filtered_ann.{ext}"
         else:
             raise ValueError(
                 "Unexpected wildcard value for 'by': {}".format(wildcards.by)
@@ -278,11 +278,11 @@ def get_control_fdr_input(wildcards):
         and wildcards.calling_type == "variants"
     ):
         by = "ann" if query["local"] else "odds"
-        return "results/calls/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
+        return "results/gathered-calls/{{group}}/{{group}}.{{event}}.{{calling_type}}.filtered_{by}.bcf".format(
             by=by
         )
     else:
-        return "results/final-calls/{group}.{calling_type}.annotated.bcf"
+        return "results/final-calls/{group}/{group}.{calling_type}.annotated.bcf"
 
 
 def get_aligner(wildcards):
@@ -698,7 +698,7 @@ def get_scattered_calls(ext="bcf"):
     def inner(wildcards):
         caller = "arriba" if wildcards.calling_type == "fusions" else variant_caller
         return expand(
-            "results/calls/{{group}}.{caller}.{{scatteritem}}.{ext}",
+            "results/raw-calls/{{group}}/{{group}}.{caller}.{{scatteritem}}.{ext}",
             caller=caller,
             ext=ext,
         )
@@ -721,7 +721,7 @@ def get_annotated_bcf(wildcards, index=False):
         get_selected_annotations() if wildcards.calling_type == "variants" else ""
     )
     return (
-        "results/calls/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
+        "results/annotated-calls/{group}/{group}.{calling_type}.{scatteritem}{selection}.bcf{ext}".format(
             group=wildcards.group,
             calling_type=wildcards.calling_type,
             selection=selection,
@@ -737,7 +737,7 @@ def get_gather_annotated_calls_input(ext="bcf"):
             get_selected_annotations() if wildcards.calling_type == "variants" else ""
         )
         return gather.calling(
-            "results/calls/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}{selection}.{ext}".format(
+            "results/annotated-calls/{{{{group}}}}/{{{{group}}}}.{{{{calling_type}}}}.{{scatteritem}}{selection}.{ext}".format(
                 ext=ext, selection=selection
             )
         )
@@ -791,7 +791,7 @@ def get_merge_calls_input(ext="bcf"):
             else ["BND"]
         )
         return expand(
-            "results/calls/{{group}}.{vartype}.{{event}}.{{calling_type}}.fdr-controlled.{ext}",
+            "results/fdr-calls/{{group}}/{{group}}.{vartype}.{{event}}.{{calling_type}}.fdr-controlled.{ext}",
             ext=ext,
             vartype=vartype,
         )

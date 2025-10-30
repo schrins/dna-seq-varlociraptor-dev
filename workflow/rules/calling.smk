@@ -73,9 +73,9 @@ rule varlociraptor_call:
         obs=get_group_observations,
         scenario="results/scenarios/{group}.yaml",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.unsorted.bcf"),
+        temp("results/raw-calls/{group}/{group}.{caller}.{scatteritem}.unsorted.bcf"),
     log:
-        "logs/varlociraptor/call/{group}.{caller}.{scatteritem}.log",
+        "logs/varlociraptor/call/{group}/{group}.{caller}.{scatteritem}.log",
     params:
         obs=get_varlociraptor_obs_args,
         # Add -o as workaround to separate info field entries from subcommand
@@ -91,7 +91,7 @@ rule varlociraptor_call:
     conda:
         "../envs/varlociraptor.yaml"
     benchmark:
-        "benchmarks/varlociraptor/call/{group}.{caller}.{scatteritem}.tsv"
+        "benchmarks/varlociraptor/call/{group}/{group}.{caller}.{scatteritem}.tsv"
     group:
         "calling"
     shell:
@@ -101,16 +101,16 @@ rule varlociraptor_call:
 
 rule sort_calls:
     input:
-        "results/calls/{group}.{caller}.{scatteritem}.unsorted.bcf",
+        "results/raw-calls/{group}/{group}.{caller}.{scatteritem}.unsorted.bcf",
     output:
-        temp("results/calls/{group}.{caller}.{scatteritem}.bcf"),
+        temp("results/raw-calls/{group}/{group}.{caller}.{scatteritem}.bcf"),
     params:
         # Set to True, in case you want uncompressed BCF output
         uncompressed_bcf=False,
         # Extra arguments
         extras="",
     log:
-        "logs/bcf-sort/{group}.{caller}.{scatteritem}.log",
+        "logs/bcf-sort/{group}/{group}.{caller}.{scatteritem}.log",
     resources:
         mem_mb=8000,
     wrapper:
@@ -122,9 +122,9 @@ rule bcftools_concat:
         calls=get_scattered_calls(),
         indexes=get_scattered_calls(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{calling_type}.{scatteritem}.bcf",
+        "results/sorted-calls/{group}/{group}.{calling_type}.{scatteritem}.bcf",
     log:
-        "logs/concat-calls/{group}.{calling_type}.{scatteritem}.log",
+        "logs/concat-calls/{group}/{group}.{calling_type}.{scatteritem}.log",
     params:
         extra="-a",  # TODO Check this
     wrapper:

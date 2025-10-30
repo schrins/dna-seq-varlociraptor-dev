@@ -24,7 +24,7 @@ rule annotate_candidate_variants:
 
 rule annotate_variants:
     input:
-        calls="results/calls/{group}.{calling_type}.{scatteritem}.bcf",
+        calls="results/sorted-calls/{group}/{group}.{calling_type}.{scatteritem}.bcf",
         cache=access.random("resources/vep/cache"),
         plugins=access.random("resources/vep/plugins"),
         revel=lambda wc: get_plugin_aux("REVEL"),
@@ -32,8 +32,8 @@ rule annotate_variants:
         fasta=access.random(genome),
         fai=genome_fai,
     output:
-        calls="results/calls/{group}.{calling_type}.{scatteritem}.annotated.bcf",
-        stats="results/calls/{group}.{calling_type}.{scatteritem}.stats.html",
+        calls="results/annotated-calls/{group}/{group}.{calling_type}.{scatteritem}.annotated.bcf",
+        stats="results/annotated-calls/{group}/{group}.{calling_type}.{scatteritem}.stats.html",
     params:
         # Pass a list of plugins to use, see https://www.ensembl.org/info/docs/tools/vep/script/vep_plugins.html
         # Plugin args can be added as well, e.g. via an entry "MyPlugin,1,FOO", see docs.
@@ -42,7 +42,7 @@ rule annotate_variants:
             config["annotations"]["vep"]["final_calls"]["params"]
         ),
     log:
-        "logs/vep/{group}.{calling_type}.{scatteritem}.annotate.log",
+        "logs/vep/{group}/{group}.{calling_type}.{scatteritem}.annotate.log",
     threads: get_vep_threads()
     wrapper:
         "v3.3.5/bio/vep/annotate"
@@ -51,11 +51,11 @@ rule annotate_variants:
 # TODO What about multiple ID Fields?
 rule annotate_vcfs:
     input:
-        bcf="results/calls/{prefix}.bcf",
+        bcf="results/annotated-calls/{prefix}.bcf",
         annotations=get_annotation_vcfs(),
         idx=get_annotation_vcfs(idx=True),
     output:
-        "results/calls/{prefix}.db-annotated.bcf",
+        "results/annotated-calls/{prefix}.db-annotated.bcf",
     log:
         "logs/annotate-vcfs/{prefix}.log",
     params:

@@ -22,9 +22,9 @@ rule filter_by_annotation:
         csi=partial(get_annotated_bcf, index=True),
         aux=get_annotation_filter_aux_files,
     output:
-        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
+        "results/filtered-calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
     log:
-        "logs/filter-calls/annotation/{group}.{event}.{calling_type}.{scatteritem}.log",
+        "logs/filter-calls/annotation/{group}/{group}.{event}.{calling_type}.{scatteritem}.log",
     params:
         filter=get_annotation_filter_expression,
         aux=get_annotation_filter_aux,
@@ -36,15 +36,15 @@ rule filter_by_annotation:
 
 rule filter_odds:
     input:
-        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
+        "results/filtered-calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_ann.bcf",
     output:
-        "results/calls/{group}.{event}.{calling_type}.{scatteritem}.filtered_odds.bcf",
+        "results/filtered-calls/{group}/{group}.{event}.{calling_type}.{scatteritem}.filtered_odds.bcf",
     params:
         events=lambda wc: config["calling"]["fdr-control"]["events"][wc.event][
             "varlociraptor"
         ],
     log:
-        "logs/filter-calls/posterior_odds/{group}.{event}.{calling_type}.{scatteritem}.log",
+        "logs/filter-calls/posterior_odds/{group}/{group}.{event}.{calling_type}.{scatteritem}.log",
     conda:
         "../envs/varlociraptor.yaml"
     shell:
@@ -56,9 +56,9 @@ rule gather_calls:
         calls=get_gather_calls_input(),
         idx=get_gather_calls_input(ext="bcf.csi"),
     output:
-        "results/calls/{group}.{event}.{calling_type}.filtered_{by}.bcf",
+        "results/gathered-calls/{group}/{group}.{event}.{calling_type}.filtered_{by}.bcf",
     log:
-        "logs/gather-calls/{group}.{event}.{calling_type}.filtered_{by}.log",
+        "logs/gather-calls/{group}/{group}.{event}.{calling_type}.filtered_{by}.log",
     params:
         extra="-a",
     wrapper:
@@ -69,9 +69,9 @@ rule control_fdr:
     input:
         get_control_fdr_input,
     output:
-        "results/calls/{group}.{vartype}.{event}.{calling_type}.fdr-controlled.bcf",
+        "results/fdr-calls/{group}/{group}.{vartype}.{event}.{calling_type}.fdr-controlled.bcf",
     log:
-        "logs/control-fdr/{group}.{vartype}.{event}.{calling_type}.log",
+        "logs/control-fdr/{group}/{group}.{vartype}.{event}.{calling_type}.log",
     params:
         query=get_fdr_control_params,
     conda:
