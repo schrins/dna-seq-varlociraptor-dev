@@ -1231,8 +1231,11 @@ def get_format_fields_for_tables(wildcards):
 
 def get_info_prob_fields_for_tables(wildcards, input):
     if lookup(dpath="tables/output/event_prob", within=config, default=False):
+        breakpoint()
         with open(input.scenario, "r") as scenario_file:
+            breakpoint()
             scenario = yaml.load(scenario_file, Loader=yaml.SafeLoader)
+            breakpoint()
             events = list(scenario["events"].keys())
             events += ["artifact", "absent"]
             return events
